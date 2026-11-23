@@ -48,3 +48,6 @@ class User(AbstractBaseUser):
     USERNAME_FIELD = 'email'
 
     objects = UserManager()
+
+    class Meta:
+        ordering = ['id']

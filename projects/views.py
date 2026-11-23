@@ -9,18 +9,21 @@ from core.views import participated_projects, page_paginator, interested_users
 
 class HomepageView(ListView):
     model = Project
-    template_name = 'projects/project_list.html'
+    template_name = 'templates_var1/projects/project_list.html'
     paginate_by = 10
 
 
 class FavoritesView(ListView):
     model = Project
-    template_name = 'projects/favorite_project.html'
+    template_name = 'templates_var1/projects/favorite_project.html'
     paginate_by = 10
+
+    def get_queryset(self):
+        return self.model.objects
 
 
 def project_detail(request, pk):
-    template_name = 'projects/project-detail.html'
+    template_name = 'templates_var1/projects/project-detail.html'
     post = get_object_or_404(is_published(Post.objects.select_related(
         'category'), request.user.username, True).filter(pk=pk))
     context = {'post': post, 'form': form, 'comments': comments}
@@ -29,7 +32,7 @@ def project_detail(request, pk):
 
 @login_required
 def toggle_participate(request, pk):
-    template_name = 'projects/project-detail.html'
+    template_name = 'templates_var1/projects/project-detail.html'
     project = get_object_or_404(User.objects.select_related(
         'favorites'), request.user.username, True).favorites.filter(pk=pk)
     context = {"status": "ok", "favorited": ''}

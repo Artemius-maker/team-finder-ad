@@ -1,5 +1,6 @@
 from pathlib import Path
 from decouple import config
+from django.urls import reverse_lazy
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -39,6 +40,9 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
+
+LOGIN_URL = reverse_lazy('users:login')
+LOGIN_REDIRECT_URL = reverse_lazy('projects:list')
 
 ROOT_URLCONF = "team_finder.urls"
 
@@ -100,7 +104,7 @@ if not DEBUG:
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "ru-Ru"
 
 TIME_ZONE = "UTC"
 

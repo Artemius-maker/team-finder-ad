@@ -4,49 +4,35 @@ from django.views.generic import ListView
 from django.views.generic.edit import BaseCreateView
 from projects.models import Project
 from .models import User
-from .forms import ProfileForm
+from .forms import RegisterForm, LoginForm
 from core.views import participated_projects, page_paginator, interested_users
 
 
 # Create your views here.
 class UserListView(ListView):
-    # page_paginator()
-    model = Project
-    template_name = 'blog/index.html'
+    model = User
+    template_name = 'users/participants.html'
     paginate_by = 10
 
     def get_queryset(self):
-        return count_comments(is_published(self.model.objects.
-                                           select_related('category')))
+        if self.request.user.is_authenticated:
+            return self.model.objects.filter(filter=self.request.filter)
+        return self.model.objects.all()
 
 
-def user_detail(request, pk):
-    template_name = 'blog/profile.html'
-    user = get_object_or_404(User, username=username)
-    post_list = count_comments(
-        is_published(Post.objects
-                     .select_related('category', 'author'),
-                     request.user.username, True)
-            .filter(author__username=username))
-    page_obj = page_paginator(request, post_list)
-    context = {'profile': user, 'page_obj': page_obj}
+def user_detail(request, user_id):
+    template_name = 'users/user-details.html'
+    user = get_object_or_404(User, id=user_id)
+    context = {"user": user}
     return render(request, template_name, context)
 
 
 @login_required  # Доступ только авторизованным пользователям
 def edit_profile(request):
-    template_name = 'blog/user.html'
+    template_name = 'users/edit_profile.html'
     form = ProfileForm(request.POST or None, instance=request.user)
     if form.is_valid():
         form.save()
-        return redirect('blog:profile', username=request.user.username)
+        return redirect('user:user_detail', email=request.user.email)
     context = {'form': form}
     return render(request, template_name, context)
-
-
-def login():
-    pass
-
-
-def logout():
-    pass

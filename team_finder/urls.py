@@ -11,7 +11,8 @@ handler500 = 'pages.views.server_error'
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', RedirectView.as_view(pattern_name='index')),
+    path('', RedirectView.as_view(pattern_name='projects:mainpage')),
+    path('accounts/<path:rest>/', RedirectView.as_view(url='/users/%(rest)s/')),
     path('projects/', include('projects.urls')),
     path('users/', include('users.urls')),
     path('pages/', include('pages.urls')),
