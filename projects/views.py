@@ -5,85 +5,96 @@ from .models import Project
 from users.models import User
 from .forms import ProjectForm
 from core.views import participated_projects, page_paginator, interested_users
+from datetime import datetime
+from django.http import JsonResponse
 
 
 class HomepageView(ListView):
     model = Project
     template_name = 'templates_var1/projects/project_list.html'
-    paginate_by = 10
+    paginate_by = 12
 
 
 class FavoritesView(ListView):
     model = Project
     template_name = 'templates_var1/projects/favorite_project.html'
-    paginate_by = 10
+    paginate_by = 12
 
     def get_queryset(self):
-        return self.model.objects
+        return self.request.user.favorites.all()
 
 
-def project_detail(request, pk):
-    template_name = 'templates_var1/projects/project-detail.html'
-    post = get_object_or_404(is_published(Post.objects.select_related(
-        'category'), request.user.username, True).filter(pk=pk))
-    context = {'post': post, 'form': form, 'comments': comments}
+def project_detail(request, project_id):
+    template_name = 'projects/project-details.html'
+    project = get_object_or_404(Project.objects.filter(pk=project_id))
+    context = {'project': project}
     return render(request, template_name, context)
 
 
 @login_required
-def toggle_participate(request, pk):
-    template_name = 'templates_var1/projects/project-detail.html'
-    project = get_object_or_404(User.objects.select_related(
-        'favorites'), request.user.username, True).favorites.filter(pk=pk)
-    context = {"status": "ok", "favorited": ''}
-    return render(request, template_name, context)
+def toggle_participate(request, project_id):
+    template_name = 'projects/project-detail.html'
+    project = get_object_or_404(Project, pk=project_id)
+    user = request.user
+    if user in project.participants.all():
+        project.participants.remove(user)
+        context = {"status": "ok", "participated": 'not-participate'}
+    else:
+        project.participants.add(user)
+        context = {"status": "ok", "participated": 'participate'}
+    project.save()
+    return JsonResponse(context)
 
 
 @login_required
-def project_complete(request, pk):
-    instance = get_object_or_404(Post, pk=pk)
-    if request.user != instance.author:
-        return redirect('blog:post_detail', pk=pk)
+def toggle_favorite(request, project_id):
+    template_name = 'projects/project-detail.html'
+    project = get_object_or_404(Project, pk=project_id)
+    user = request.user
+    if project in user.favorites.all():
+        user.favorites.remove(project)
+        context = {"status": "ok", "favorited": 'not-favorite'}
+    else:
+        user.favorites.add(project)
+        context = {"status": "ok", "favorited": 'favorite'}
+    user.save()
+    return JsonResponse(context)
+
+
+@login_required
+def project_complete(request, project_id):
+    instance = get_object_or_404(Project, pk=project_id)
+    if request.user == instance.owner and request.method == 'POST':
+        instance.status = "Closed"
+        instance.save()
     # В форму передаём только объект модели;
     # передавать в форму параметры запроса не нужно.
-    form = PostForm(instance=instance)
-    context = {'form': form}
-    # Если был получен POST-запрос...
-    if request.method == 'POST':
-        # ...удаляем объект:
-        instance.delete()
-        # ...и переадресовываем пользователя на страницу со списком записей.
-        return redirect('blog:index')
-    # Если был получен GET-запрос — отображаем форму.
-    template_name = 'blog/create.html'
-    return render(request, template_name, context)
+    context = {"status": "ok", "project_status": "closed"}
+    return JsonResponse(context)
 
 
 @login_required
-def create_edit_project(request, pk=None):
-    if pk is not None:
+def create_edit_project(request, project_id=None):
+    if project_id is not None:
         # Получаем объект модели или выбрасываем 404 ошибку.
-        instance = get_object_or_404(Post, pk=pk)
-        if request.user != instance.author:
-            return redirect('blog:post_detail', pk=pk)
+        instance = get_object_or_404(Project, pk=project_id)
+        if request.user != instance.owner:
+            return redirect('projects:project_detail', project_id=project_id)
     # Если в запросе не указан pk
     # (если получен запрос к странице создания записи):
     else:
         # Связывать форму с объектом не нужно, установим значение None.
         instance = None
-    form = PostForm(request.POST or None,
-                    files=request.FILES or None, instance=instance)
+    form = ProjectForm(request.POST or None, instance=instance)
     if form.is_valid():
         # Создаём объект поста, но не сохраняем его в БД.
-        post = form.save(commit=False)
+        project = form.save(commit=False)
         # В поле author передаём объект автора поста.
-        post.author = request.user
+        project.owner = request.user
         # Сохраняем объект в БД.
-        post.save()
+        project.save()
         # Перенаправляем пользователя назад, на страницу поста.
-        if pk is not None:
-            return redirect('blog:post_detail', pk=pk)
-        return redirect('blog:profile', username=request.user.username)
-    template_name = 'blog/create.html'
+        return redirect('projects:project_detail', project_id=project.id)
+    template_name = 'projects/create-project.html'
     context = {'form': form}
     return render(request, template_name, context)
