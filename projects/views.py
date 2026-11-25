@@ -33,22 +33,20 @@ def project_detail(request, project_id):
 
 @login_required
 def toggle_participate(request, project_id):
-    template_name = 'projects/project-detail.html'
     project = get_object_or_404(Project, pk=project_id)
     user = request.user
     if user in project.participants.all():
         project.participants.remove(user)
-        context = {"status": "ok", "participated": 'not-participate'}
+        context = {"status": "ok"}
     else:
         project.participants.add(user)
-        context = {"status": "ok", "participated": 'participate'}
+        context = {"status": "ok", "participant": 'participate'}
     project.save()
     return JsonResponse(context)
 
 
 @login_required
 def toggle_favorite(request, project_id):
-    template_name = 'projects/project-detail.html'
     project = get_object_or_404(Project, pk=project_id)
     user = request.user
     if project in user.favorites.all():
