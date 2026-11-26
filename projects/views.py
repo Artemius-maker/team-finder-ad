@@ -1,24 +1,26 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import get_user_model
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import ListView
-from .models import Project
-from users.models import User
-from .forms import ProjectForm
-from core.views import participated_projects, page_paginator, interested_users
-from datetime import datetime
 from django.http import JsonResponse
+
+from .models import Project
+from .forms import ProjectForm
+from core.models import consts
+
+User = get_user_model()
 
 
 class HomepageView(ListView):
     model = Project
     template_name = 'templates_var1/projects/project_list.html'
-    paginate_by = 12
+    paginate_by = consts.paginate_by
 
 
 class FavoritesView(ListView):
     model = Project
     template_name = 'templates_var1/projects/favorite_project.html'
-    paginate_by = 12
+    paginate_by = consts.paginate_by
 
     def get_queryset(self):
         return self.request.user.favorites.all()
@@ -26,7 +28,7 @@ class FavoritesView(ListView):
 
 def project_detail(request, project_id):
     template_name = 'projects/project-details.html'
-    project = get_object_or_404(Project.objects.filter(pk=project_id))
+    project = get_object_or_404(Project, pk=project_id)
     context = {'project': project}
     return render(request, template_name, context)
 
@@ -35,7 +37,7 @@ def project_detail(request, project_id):
 def toggle_participate(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
     user = request.user
-    if user in project.participants.all():
+    if project.participants.filter(pk=user.id):
         project.participants.remove(user)
         context = {"status": "ok"}
     else:
@@ -49,12 +51,13 @@ def toggle_participate(request, project_id):
 def toggle_favorite(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
     user = request.user
-    if project in user.favorites.all():
+    context = {"status": "ok"}
+    if user.favorites.filter(pk=project.id):
         user.favorites.remove(project)
-        context = {"status": "ok", "favorited": 'not-favorite'}
+        context["favorited"] = 'not-favorite'
     else:
         user.favorites.add(project)
-        context = {"status": "ok", "favorited": 'favorite'}
+        context["favorited"] = 'favorite'
     user.save()
     return JsonResponse(context)
 
@@ -63,11 +66,11 @@ def toggle_favorite(request, project_id):
 def project_complete(request, project_id):
     instance = get_object_or_404(Project, pk=project_id)
     if request.user == instance.owner and request.method == 'POST':
-        instance.status = "Closed"
+        instance.status = "Закрыт"
         instance.save()
     # В форму передаём только объект модели;
     # передавать в форму параметры запроса не нужно.
-    context = {"status": "ok", "project_status": "closed"}
+    context = {"status": "ok", "project_status": instance.status}
     return JsonResponse(context)
 
 
@@ -84,15 +87,15 @@ def create_edit_project(request, project_id=None):
         # Связывать форму с объектом не нужно, установим значение None.
         instance = None
     form = ProjectForm(request.POST or None, instance=instance)
-    if form.is_valid():
-        # Создаём объект поста, но не сохраняем его в БД.
-        project = form.save(commit=False)
-        # В поле author передаём объект автора поста.
-        project.owner = request.user
-        # Сохраняем объект в БД.
-        project.save()
-        # Перенаправляем пользователя назад, на страницу поста.
-        return redirect('projects:project_detail', project_id=project.id)
-    template_name = 'projects/create-project.html'
-    context = {'form': form}
-    return render(request, template_name, context)
+    if not form.is_valid():
+        template_name = 'projects/create-project.html'
+        context = {'form': form}
+        return render(request, template_name, context)
+    # Создаём объект поста, но не сохраняем его в БД.
+    project = form.save(commit=False)
+    # В поле author передаём объект автора поста.
+    project.owner = request.user
+    # Сохраняем объект в БД.
+    project.save()
+    # Перенаправляем пользователя назад, на страницу поста.
+    return redirect('projects:project_detail', project_id=project.id)

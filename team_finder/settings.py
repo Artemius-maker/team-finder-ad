@@ -1,17 +1,16 @@
 from pathlib import Path
+
 from decouple import config
-from django.urls import reverse_lazy
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # TODO: Создать и заполнить .env, ориентируясь на .env_example
 
-SECRET_KEY = config("DJANGO_SECRET_KEY")
+SECRET_KEY = config("DJANGO_SECRET_KEY", default='change_for_safety')
 
 DEBUG = config("DJANGO_DEBUG", default=False, cast=bool)
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost')
 
 # Application definition
 
@@ -41,8 +40,8 @@ MIDDLEWARE = [
     "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
-LOGIN_URL = reverse_lazy('users:login')
-LOGIN_REDIRECT_URL = reverse_lazy('projects:list')
+LOGIN_URL = 'users:login'
+LOGIN_REDIRECT_URL = 'projects:list'
 
 ROOT_URLCONF = "team_finder.urls"
 
@@ -62,7 +61,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "team_finder.wsgi.application"
-
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
@@ -106,12 +104,11 @@ if not DEBUG:
 
 LANGUAGE_CODE = "ru-Ru"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "UTC+3"
 
 USE_I18N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/

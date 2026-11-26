@@ -1,10 +1,12 @@
 from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin
-from PIL import Image, ImageDraw, ImageFont
 from django.core.files import File
+from PIL import Image, ImageDraw, ImageFont
 
+from core.models import consts
+from projects.models import get_project
 
-# Create your models here.
+Project = get_project()
 
 
 class UserManager(BaseUserManager):
@@ -37,13 +39,14 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True, verbose_name="Адрес электронной почты")
-    name = models.CharField(max_length=124, verbose_name="Имя")
-    surname = models.CharField(max_length=124, verbose_name="Фамилия")
+    name = models.CharField(max_length=consts.max_length_user_name, verbose_name="Имя")
+    surname = models.CharField(max_length=consts.max_length_user_name, verbose_name="Фамилия")
     avatar = models.ImageField(
         verbose_name="Аватарка пользователя", upload_to='avatars/', blank=True)
-    phone = models.CharField(max_length=12, verbose_name="Номер телефона")
+    phone = models.CharField(max_length=consts.max_length_user_phone, verbose_name="Номер телефона")
     github_url = models.URLField(null=True, blank=True, verbose_name="ссылка на GitHub")
-    about = models.TextField(max_length=256, null=True, blank=True, verbose_name="Описание")
+    about = models.TextField(max_length=consts.max_length_user_about, null=True, blank=True, verbose_name="Описание")
+    registered_at = models.DateTimeField(verbose_name="Время регистрации", default=timezone.now)
     is_active = models.BooleanField(default=True, verbose_name="Активный пользователь")
     is_staff = models.BooleanField(default=False, verbose_name="Администратор")
     is_superuser = models.BooleanField(default=False, verbose_name="Суперпользователь")
@@ -63,12 +66,12 @@ class User(AbstractBaseUser, PermissionsMixin):
         return f'{self.name} {self.surname}'
 
     def owned_projects(self):
-        from projects.models import Project
         return Project.objects.filter(owner=self)
 
     def participated_projects(self):
-        from projects.models import Project
         return Project.objects.select_related('participants').filter(participants__id=self.id)
 
     class Meta:
-        ordering = ['-id']
+        ordering = ['-registered_at']
+        verbose_name = "пользователь"
+        verbose_name_plural = "Пользователи"

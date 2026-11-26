@@ -1,44 +1,34 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, UserChangeForm
+from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import get_user_model
-from core.views import validate_hostname
 from django.core.exceptions import ValidationError
+
+from core.forms import GithubForm
 
 User = get_user_model()
 
 
-class ProfileForm(forms.ModelForm):
+class ProfileForm(GithubForm):
     class Meta:
         model = User
         fields = ('name', 'surname', 'avatar', 'about', 'phone', 'github_url')
-
-    def clean_github_url(self):
-        data = self.cleaned_data['github_url']
-        allowed_hosts = {'github.com', 'www.github.com', 'https://github.com'}
-        if not validate_hostname(data, allowed_hosts):  # используем функцию из предыдущего способа
-            raise ValidationError('Некорректный домен для поля github_url')
-        return data
 
 
 class RegisterForm(forms.ModelForm):
     """Форма для регистрации новых пользователей"""
 
     email = forms.EmailField(
-        widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'})
+        widget=forms.EmailInput(attrs={'placeholder': 'Email'})
     )
 
     password = forms.CharField(
-        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Пароль'})
+        widget=forms.PasswordInput(attrs={'placeholder': 'Пароль'})
     )
 
     class Meta:
         model = User
 
         fields = ('email', 'name', 'surname', 'password')
-        widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Имя'}),
-            'surname': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Фамилия'}),
-        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -63,6 +53,5 @@ class LoginForm(AuthenticationForm):
     """Форма для аутентификации пользователей"""
 
     username = forms.EmailField(
-        max_length=254,
-        widget=forms.EmailInput(attrs={'class': 'form-control'})
+        max_length=254
     )
