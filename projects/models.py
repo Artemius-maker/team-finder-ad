@@ -8,8 +8,8 @@ from team_finder import settings
 User = get_user_model()
 
 
-class Project(BaseModel):
-    name = models.CharField(max_length=max_length_project_name, verbose_name="Название")
+class Project(models.Model):
+    name = models.CharField(max_length=consts.max_length_project_name, verbose_name="Название")
     description = models.TextField(blank=True, verbose_name="Описание")
     created_at = models.DateField(verbose_name="Дата создания проекта", default=timezone.now)
     owner = models.ForeignKey(
@@ -34,5 +34,4 @@ class Project(BaseModel):
         return User.objects.filter(favorites=self)
 
 
-def get_project():
-    return Project
+

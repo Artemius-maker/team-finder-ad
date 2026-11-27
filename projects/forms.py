@@ -1,8 +1,5 @@
-# Импортируем модель поздравления.
 from .models import Project
 from core.forms import GithubForm
-
-User = get_user_model()
 
 
 class ProjectForm(GithubForm):

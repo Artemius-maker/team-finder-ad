@@ -1,12 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin
 from django.core.files import File
+from django.apps import apps
+from django.utils import timezone
 from PIL import Image, ImageDraw, ImageFont
 
 from core.models import consts
-from projects.models import get_project
-
-Project = get_project()
 
 
 class UserManager(BaseUserManager):
@@ -66,10 +65,10 @@ class User(AbstractBaseUser, PermissionsMixin):
         return f'{self.name} {self.surname}'
 
     def owned_projects(self):
-        return Project.objects.filter(owner=self)
+        return apps.get_model('projects', 'Project').objects.filter(owner=self)
 
     def participated_projects(self):
-        return Project.objects.select_related('participants').filter(participants__id=self.id)
+        return apps.get_model('projects', 'Project').objects.select_related('participants').filter(participants__id=self.id)
 
     class Meta:
         ordering = ['-registered_at']

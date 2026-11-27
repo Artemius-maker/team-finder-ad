@@ -10,7 +10,7 @@ SECRET_KEY = config("DJANGO_SECRET_KEY", default='change_for_safety')
 
 DEBUG = config("DJANGO_DEBUG", default=False, cast=bool)
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost')
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default=['localhost'])
 
 # Application definition
 
@@ -104,7 +104,7 @@ if not DEBUG:
 
 LANGUAGE_CODE = "ru-Ru"
 
-TIME_ZONE = "UTC+3"
+TIME_ZONE = "Europe/Moscow"
 
 USE_I18N = True
 
