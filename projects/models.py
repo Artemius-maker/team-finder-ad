@@ -2,7 +2,7 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth import get_user_model
 
-from core.models import consts
+from .constants import consts
 from team_finder import settings
 
 User = get_user_model()
@@ -16,8 +16,8 @@ class Project(models.Model):
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Автор проекта",
         related_name='owner')
     github_url = models.URLField(null=True, blank=True, verbose_name="ссылка на GitHub")
-    status = models.CharField(max_length=consts.max_length_project_status, choices=consts.choices,
-                              verbose_name="Статус проекта", default="Закрыт")
+    status = models.CharField(max_length=len(consts.choices[0][0]), choices=consts.choices,
+                              verbose_name="Статус проекта", default=consts.choices[1][1])
     participants = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True,
                                           verbose_name="Участники проекта",
                                           related_name='participants')

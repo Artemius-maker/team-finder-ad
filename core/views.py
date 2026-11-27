@@ -1,12 +1,32 @@
+from urllib.parse import urlparse
+
 from django.db.models import Q, Count
 from django.utils import timezone
 from django.core.paginator import Paginator
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
-from urllib.parse import urlparse
+
+from team_finder.settings import paginate_by
 
 
-# Create your views here.
+class BaseLoginView(View):
+    def get(self, request):
+        form = self.form_class()
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request):
+        form = self.form_class(data=request.POST)
+        if not form.is_valid():
+            return render(request, self.template_name, {'form': form})
+        email = form.cleaned_data.get('username')
+        password = form.cleaned_data.get('password')
+        user = authenticate(email=email, password=password)
+        if user is None:
+            return render(request, self.template_name, {'form': form})
+        login(request, user)
+        messages.success(request, f'Добро пожаловать, {user.get_short_name()}!')
+        return redirect('projects:mainpage')
+
 
 def validate_hostname(value, allowed_hosts):
     """
@@ -31,15 +51,7 @@ def validate_hostname(value, allowed_hosts):
     return True
 
 
-def participated_projects(user):
-    return user.annotate(participated_projects=Count('participants'))
-
-
-def interested_users(project):
-    return project.annotate(interested_users=Count('favorites'))
-
-
-def page_paginator(request, list):
-    paginator = Paginator(list, 10)
+def page_paginator(request, list, paginate=paginate_by):
+    paginator = Paginator(list, paginate)
     page_number = request.GET.get('page')
     return paginator.get_page(page_number)

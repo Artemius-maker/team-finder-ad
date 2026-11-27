@@ -5,7 +5,7 @@ from django.apps import apps
 from django.utils import timezone
 from PIL import Image, ImageDraw, ImageFont
 
-from core.models import consts
+from .constants import consts
 
 
 class UserManager(BaseUserManager):

@@ -8,8 +8,8 @@ from django.contrib import messages
 from django.contrib.auth.views import PasswordChangeView
 
 from .forms import LoginForm, ProfileForm
-from core.views import participated_projects
-from core.models import consts
+from core.views import participated_projects, BaseLoginView
+from team_finder.settings import paginate_by
 
 User = get_user_model()
 
@@ -17,7 +17,7 @@ User = get_user_model()
 class UserListView(ListView):
     model = User
     template_name = 'users/participants.html'
-    paginate_by = consts.paginate_by
+    paginate_by = paginate_by
 
     def get_queryset(self):
         if self.request.user.is_authenticated and self.request.GET.get('filter'):
@@ -36,27 +36,9 @@ class UserListView(ListView):
         return self.model.objects.all()
 
 
-class LoginView(View):
+class LoginView(BaseLoginView):
     form_class = LoginForm
     template_name = 'users/login.html'
-
-    def get(self, request):
-        form = self.form_class()
-        return render(request, self.template_name, {'form': form})
-
-    def post(self, request):
-        form = self.form_class(data=request.POST)
-        if not form.is_valid():
-            print(form.errors)
-            return render(request, self.template_name, {'form': form})
-        email = form.cleaned_data.get('username')
-        password = form.cleaned_data.get('password')
-        user = authenticate(email=email, password=password)
-        if user is None:
-            return render(request, self.template_name, {'form': form})
-        login(request, user)
-        messages.success(request, f'Добро пожаловать, {user.get_short_name()}!')
-        return redirect('projects:mainpage')
 
 
 def user_detail(request, user_id):

@@ -108,10 +108,10 @@ docker compose down
 python manage.py runserver
 ```
 
-Теперь проект доступен по адресу [http://localhost:8000](http://localhost:8000).
+## 6. Информация
 
 1. **Автор** — Артём Еретин, контакт-ссылки: email: artemiuseretin@gmail.com;
-   GitHub: https://github.com/Artemius-maker/team-finder-ad
+   [GitHub](https://github.com/Artemius-maker/team-finder-ad)
 
 2. **Техно-стек** — Python 3.x, Django 3.2.16, django-bootstrap5 (Bootstrap 5)
    PostgreSQL 16 (Docker), Faker/mixer for demo data Pillow; dev tools: flake8, pytest-django, django-debug-toolbar

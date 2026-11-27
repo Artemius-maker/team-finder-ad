@@ -1,10 +1,6 @@
-# Импортируем модель поздравления.
 from django import forms
-from django.contrib.auth import get_user_model
 
 from .views import validate_hostname
-
-User = get_user_model()
 
 
 class GithubForm(forms.ModelForm):
