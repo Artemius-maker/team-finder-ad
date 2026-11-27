@@ -5,6 +5,7 @@ from django.utils import timezone
 from django.core.paginator import Paginator
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
+from django.views import View
 
 from team_finder.settings import paginate_by
 

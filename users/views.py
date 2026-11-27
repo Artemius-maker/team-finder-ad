@@ -2,13 +2,12 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import login, authenticate, get_user_model
 from django.views.generic import ListView
-from django.views import View
 from django.urls import reverse
 from django.contrib import messages
 from django.contrib.auth.views import PasswordChangeView
 
 from .forms import LoginForm, ProfileForm
-from core.views import participated_projects, BaseLoginView
+from core.views import BaseLoginView
 from team_finder.settings import paginate_by
 
 User = get_user_model()
