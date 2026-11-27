@@ -7,8 +7,8 @@ from django.core import exceptions
 
 from .models import Project
 from .forms import ProjectForm
-from .constants import consts
-from team_finder.settings import paginate_by
+from .constants import Consts
+from team_finder.settings import PAGINATE_BY
 
 User = get_user_model()
 
@@ -16,13 +16,13 @@ User = get_user_model()
 class HomepageView(ListView):
     model = Project
     template_name = 'templates_var1/projects/project_list.html'
-    paginate_by = paginate_by
+    paginate_by = PAGINATE_BY
 
 
 class FavoritesView(ListView):
     model = Project
     template_name = 'templates_var1/projects/favorite_project.html'
-    paginate_by = paginate_by
+    paginate_by = PAGINATE_BY
 
     def get_queryset(self):
         return self.request.user.favorites.all()
@@ -71,9 +71,9 @@ def project_complete(request, project_id):
         raise exceptions.MethodNotAllowed("Разрешены только POST-запросы")
     if request.user != instance.owner:
         raise exceptions.PermissionDenied("Только автор может выполнить это действие")
-    if instance.status in consts.choices[1]:
+    if instance.status in Consts.choices[1]:
         raise exceptions.ValidationError("Невозможно выполнить действие для закрытого проекта")
-    instance.status = consts.choices[1][1]
+    instance.status = Consts.choices[1][1]
     instance.save()
     context = {"status": "ok", "project_status": instance.status}
     return JsonResponse(context)

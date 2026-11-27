@@ -4,11 +4,11 @@ from django.contrib.auth import login, authenticate, get_user_model
 from django.views.generic import ListView
 from django.urls import reverse
 from django.contrib import messages
-from django.contrib.auth.views import PasswordChangeView
+from django.contrib.auth.views import PasswordChangeView, LoginView
 
 from .forms import LoginForm, ProfileForm
-from core.views import BaseLoginView
-from team_finder.settings import paginate_by
+#from core.views import BaseLoginView
+from team_finder.settings import PAGINATE_BY
 
 User = get_user_model()
 
@@ -16,7 +16,7 @@ User = get_user_model()
 class UserListView(ListView):
     model = User
     template_name = 'users/participants.html'
-    paginate_by = paginate_by
+    paginate_by = PAGINATE_BY
 
     def get_queryset(self):
         if self.request.user.is_authenticated and self.request.GET.get('filter'):
@@ -35,7 +35,7 @@ class UserListView(ListView):
         return self.model.objects.all()
 
 
-class LoginView(BaseLoginView):
+class LoginView(LoginView):
     form_class = LoginForm
     template_name = 'users/login.html'
 

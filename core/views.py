@@ -6,11 +6,12 @@ from django.core.paginator import Paginator
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 from django.views import View
+from django.contrib.auth.views import LoginView
 
-from team_finder.settings import paginate_by
+from team_finder.settings import PAGINATE_BY
 
 
-class BaseLoginView(View):
+class BaseLoginView(LoginView):
     def get(self, request):
         form = self.form_class()
         return render(request, self.template_name, {'form': form})
@@ -52,7 +53,7 @@ def validate_hostname(value, allowed_hosts):
     return True
 
 
-def page_paginator(request, list, paginate=paginate_by):
+def page_paginator(request, list, paginate=PAGINATE_BY):
     paginator = Paginator(list, paginate)
     page_number = request.GET.get('page')
     return paginator.get_page(page_number)

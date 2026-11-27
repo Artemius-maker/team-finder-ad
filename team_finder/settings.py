@@ -41,7 +41,7 @@ MIDDLEWARE = [
 ]
 
 LOGIN_URL = 'users:login'
-LOGIN_REDIRECT_URL = 'projects:list'
+LOGIN_REDIRECT_URL = 'projects:mainpage'
 
 ROOT_URLCONF = "team_finder.urls"
 
@@ -125,4 +125,4 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-paginate_by = 12
+PAGINATE_BY = 12
