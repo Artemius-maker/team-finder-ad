@@ -7,7 +7,6 @@ from django.contrib import messages
 from django.contrib.auth.views import PasswordChangeView, LoginView
 
 from .forms import LoginForm, ProfileForm
-#from core.views import BaseLoginView
 from team_finder.settings import PAGINATE_BY
 
 User = get_user_model()

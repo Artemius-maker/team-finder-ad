@@ -11,25 +11,6 @@ from django.contrib.auth.views import LoginView
 from team_finder.settings import PAGINATE_BY
 
 
-class BaseLoginView(LoginView):
-    def get(self, request):
-        form = self.form_class()
-        return render(request, self.template_name, {'form': form})
-
-    def post(self, request):
-        form = self.form_class(data=request.POST)
-        if not form.is_valid():
-            return render(request, self.template_name, {'form': form})
-        email = form.cleaned_data.get('username')
-        password = form.cleaned_data.get('password')
-        user = authenticate(email=email, password=password)
-        if user is None:
-            return render(request, self.template_name, {'form': form})
-        login(request, user)
-        messages.success(request, f'Добро пожаловать, {user.get_short_name()}!')
-        return redirect('projects:mainpage')
-
-
 def validate_hostname(value, allowed_hosts):
     """
     Проверяет, что URL ведёт на github.com (любой путь, любой пользователь).
