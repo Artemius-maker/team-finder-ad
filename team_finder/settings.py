@@ -16,7 +16,6 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', default=['localhost'])
 
 INSTALLED_APPS = [
     "core.apps.CoreConfig",
-    "pages.apps.PagesConfig",
     "projects.apps.ProjectsConfig",
     "users.apps.UsersConfig",
     'django.contrib.admin',

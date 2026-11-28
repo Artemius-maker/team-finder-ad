@@ -1,12 +1,7 @@
 from urllib.parse import urlparse
 
-from django.db.models import Q, Count
-from django.utils import timezone
 from django.core.paginator import Paginator
 from django.core.exceptions import ValidationError
-from django.core.validators import URLValidator
-from django.views import View
-from django.contrib.auth.views import LoginView
 
 from team_finder.settings import PAGINATE_BY
 

@@ -3,7 +3,6 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import login, authenticate, get_user_model
 from django.views.generic import ListView
 from django.urls import reverse
-from django.contrib import messages
 from django.contrib.auth.views import PasswordChangeView, LoginView
 
 from .forms import LoginForm, ProfileForm
