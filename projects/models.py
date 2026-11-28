@@ -16,8 +16,8 @@ class Project(models.Model):
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Автор проекта",
         related_name='owner')
     github_url = models.URLField(null=True, blank=True, verbose_name="ссылка на GitHub")
-    status = models.CharField(max_length=len(max(map(lambda x: max(x), Consts.choices))), choices=Consts.choices,
-                              verbose_name="Статус проекта", default=Consts.choices[0][1])
+    status = models.CharField(max_length=max(map(lambda x: max(map(len, x)), Consts.choices)), choices=Consts.choices,
+                              verbose_name="Статус проекта", default=Consts.opened[0])
     participants = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True,
                                           verbose_name="Участники проекта",
                                           related_name='participants')

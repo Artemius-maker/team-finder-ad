@@ -71,9 +71,9 @@ def project_complete(request, project_id):
         raise exceptions.MethodNotAllowed("Разрешены только POST-запросы")
     if request.user != instance.owner:
         raise exceptions.PermissionDenied("Только автор может выполнить это действие")
-    if instance.status in Consts.choices[1]:
+    if instance.status in Consts.closed:
         raise exceptions.ValidationError("Невозможно выполнить действие для закрытого проекта")
-    instance.status = Consts.choices[1][1]
+    instance.status = Consts.closed[0]
     instance.save()
     context = {"status": "ok", "project_status": instance.status}
     return JsonResponse(context)
